@@ -1,0 +1,72 @@
+QT       += core gui multimedia multimediawidgets
+
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+CONFIG += c++11
+# 添加 FFmpeg 的 C 语言支持
+CONFIG += c11
+
+# 定义 FFmpeg 库的路径
+FFMPEG_LIB_PATH = /home/ytq/sdk/ffmpeg_libs
+PORTAUDIO_LIB_PATH = /home/ytq/sdk/portaudio_libs
+
+# The following define makes your compiler emit warnings if you use
+# any Qt feature that has been marked deprecated (the exact warnings
+# depend on your compiler). Please consult the documentation of the
+# deprecated API in order to know how to port your code away from it.
+DEFINES += QT_DEPRECATED_WARNINGS
+
+DEFINES += FFMPEG_LIB_PATH=\\\"$${FFMPEG_LIB_PATH}\\\"
+DEFINES += PORTAUDIO_LIB_PATH=\\\"$${PORTAUDIO_LIB_PATH}\\\"
+
+# FFmpeg 库路径和链接
+LIBS += -L$${FFMPEG_LIB_PATH}/lib -lavcodec -lavdevice -lavfilter -lavformat -lavutil -lswresample -lswscale
+# portaudio 库路径和链接
+LIBS += -L$${PORTAUDIO_LIB_PATH}/lib -lportaudio
+
+# FFmpeg 头文件路径
+INCLUDEPATH += $${FFMPEG_LIB_PATH}/include
+DEPENDPATH += $${FFMPEG_LIB_PATH}/include
+# portaudio 头文件路径
+INCLUDEPATH += $${PORTAUDIO_LIB_PATH}/include
+DEPENDPATH += $${PORTAUDIO_LIB_PATH}/include
+
+# You can also make your code fail to compile if it uses deprecated APIs.
+# In order to do so, uncomment the following line.
+# You can also select to disable deprecated APIs only up to a certain version of Qt.
+#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+
+SOURCES += \
+    main.cpp \
+    mainwindow.cpp \
+    audiodecoder.cpp \
+    audioplayer.cpp \
+    marqueelabel.cpp \
+    playercontroller.cpp \
+    playlistitemwidget.cpp \
+    ui_manager.cpp \
+    utils.cpp
+
+HEADERS += \
+    mainwindow.h \
+    audiodecoder.h \
+    audioplayer.h \
+    marqueelabel.h \
+    playercontroller.h \
+    playlistitemwidget.h \
+    ui_manager.h \
+    utils.h
+
+TRANSLATIONS += \
+    audio_player_en_US.ts
+
+# Default rules for deployment.
+qnx: target.path = /tmp/$${TARGET}/bin
+else: unix:!android: target.path = /opt/$${TARGET}/bin
+!isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    resources.qrc
+
+
+
