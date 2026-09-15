@@ -1,23 +1,13 @@
 <RCC>
     <qresource prefix="/">
-        <file>icons/add.png</file>
-        <file>icons/folder.png</file>
-        <file>icons/folder_open.png</file>
-        <file>icons/network.png</file>
-        <file>icons/sort.png</file>
-        <file>icons/play.png</file>
-        <file>icons/pause.png</file>
-        <file>icons/previous.png</file>
-        <file>icons/next.png</file>
-        <file>icons/repeat_one.png</file>
-        <file>icons/shuffle.png</file>
-        <file>icons/sequential.png</file>
-        <file>icons/volume_high.png</file>
-        <file>icons/volume_low.png</file>
-        <file>icons/volume_off.png</file>
-        <file>styles/style.qss</file>
-        <file>icons/delete.png</file>
-        <file>icons/settings.png</file>
         <file>icons/logo.png</file>
+        <file>qml/Main.qml</file>
+        <file>qml/Theme.js</file>
+        <file>qml/ActionButton.qml</file>
+        <file>qml/Icon.qml</file>
+        <file>qml/RecordArtwork.qml</file>
+        <file>qml/PlayerSlider.qml</file>
+        <file>qml/TrackRow.qml</file>
+        <file>qml/PlayerBar.qml</file>
     </qresource>
 </RCC>

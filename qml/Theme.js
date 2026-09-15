@@ -1,0 +1,10 @@
+.pragma library
+var background = "#121416"
+var sidebar = "#17191c"
+var panel = "#1c1f22"
+var raised = "#25292d"
+var border = "#2c3034"
+var text = "#eceef0"
+var muted = "#91979f"
+var accent = "#b6e587"
+var accentInk = "#192315"

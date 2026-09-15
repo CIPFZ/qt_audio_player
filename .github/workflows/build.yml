@@ -1,0 +1,50 @@
+name: Build and test
+on:
+  push:
+    branches: ['**']
+    tags: ['**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        qt: [5, 6]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install audio dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build pkg-config libavformat-dev libavcodec-dev libavutil-dev libswresample-dev portaudio19-dev ffmpeg fonts-noto-cjk
+      - name: Install Qt 5
+        if: matrix.qt == 5
+        run: sudo apt-get install -y qtbase5-dev qtdeclarative5-dev qtquickcontrols2-5-dev qml-module-qtquick2 qml-module-qtquick-controls2 qml-module-qtquick-layouts qml-module-qtquick-window2 qml-module-qtqml qml-module-qtqml-models2
+      - name: Install Qt 6
+        if: matrix.qt == 6
+        run: sudo apt-get install -y qt6-base-dev qt6-declarative-dev qt6-declarative-dev-tools qml6-module-qtquick qml6-module-qtquick-controls qml6-module-qtquick-layouts qml6-module-qtquick-window qml6-module-qtquick-templates qml6-module-qtqml qml6-module-qtqml-models qml6-module-qtqml-workerscript
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DQT_VERSION_MAJOR=${{ matrix.qt }} -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build -j 2
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+      - name: Stage tag build
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          cmake --install build --prefix dist
+          cp README.md dist/README.md
+          cp -R docs dist/docs
+      - name: Upload tag build
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: audio-player-linux-x64-qt${{ matrix.qt }}-${{ github.sha }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 30

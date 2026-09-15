@@ -1,66 +1,53 @@
-#ifndef PLAYERCONTROLLER_H
-#define PLAYERCONTROLLER_H
+#pragma once
+#include "playbackworker.h"
+#include "playlistmodel.h"
+#include <QThread>
 
-#include <QObject>
-#include <QTimer>
-#include <QStringList>
-#include <QFileInfo>
-#include "audioplayer.h"
-#include "audiodecoder.h" // 你自己的解码器类
-
-enum class PlayMode {
-    Sequential,     // 顺序播放
-    LoopOne,        // 单曲循环
-    Shuffle         // 随机播放
-};
-
+enum class PlayMode { Sequential, LoopAll, LoopOne, Shuffle };
 
 class PlayerController : public QObject
 {
     Q_OBJECT
 public:
-    explicit PlayerController(QObject *parent = nullptr);
-
-    void setPlaylist(const QStringList &fileList);
-    void play(int index = 0);
-    void pause();
-    void resume();
+    explicit PlayerController(PlaylistModel *playlist, QObject *parent = nullptr);
+    ~PlayerController() override;
+    void play(int index);
+    void toggle(int selectedIndex = -1);
     void stop();
-    bool isPlaying();
-    void setVolume(int percent);
-
-    int currentIndex() const { return m_currentIndex; }
-    QString currentFile() const;
-
-signals:
-    void positionChanged(qint64 ms); // 当前播放进度
-    void durationChanged(qint64 ms); // 当前文件总时长
-    void playbackStateChanged(bool isPlaying);
-    void playCompleted();
-    void currentSongChanged(const QString &title, int sampleRate, int channels, int bitrateKbps);
-
-public slots:
+    void next();
+    void previous();
     void seek(qint64 ms);
-
-private slots:
-    void onPlaybackTimer();
-
+    void setVolume(int percent);
+    void setPlayMode(PlayMode mode);
+    PlayMode playMode() const { return m_mode; }
+    PlaybackState state() const { return m_state; }
+    int currentIndex() const { return m_playlist->indexOf(m_currentFile); }
+    QString currentFile() const { return m_currentFile; }
+    qint64 duration() const { return m_duration; }
+    static QString modeName(PlayMode mode);
+    static int nextIndex(int current, int count, PlayMode mode, bool automatic);
+signals:
+    void stateChanged(PlaybackState state);
+    void positionChanged(qint64 ms);
+    void durationChanged(qint64 ms);
+    void currentTrackChanged(int index);
+    void songChanged(const QString &title, const QString &artist, int rate, int channels, int bitrate);
+    void errorOccurred(const QString &message);
+    void modeChanged(PlayMode mode);
+    void openRequested(const QString &path, quint64 generation);
+    void stopRequested(quint64 generation);
+    void pauseRequested(quint64 generation);
+    void resumeRequested(quint64 generation);
+    void seekRequested(qint64 ms, quint64 generation);
+    void volumeRequested(int percent);
 private:
-    AudioDecoder m_decoder; // 你现有的解码器
-    AudioPlayer m_player;   // 你现有的音频播放类
-
-    QStringList m_playlist;
-    int m_currentIndex = -1;
-
-    QTimer m_timer; // 定时器，用于更新进度条
-
-    qint64 m_duration = 0; // 总时长(ms)
-    qint64 m_position = 0; // 当前播放位置(ms)
-
-    bool m_isPlaying = false;
-
-    void startDecodingAndPlaying();
-    void onPlayFinished();
+    void setState(PlaybackState state);
+    PlaylistModel *m_playlist;
+    QThread m_thread;
+    PlaybackWorker *m_worker;
+    QString m_currentFile;
+    PlaybackState m_state = PlaybackState::Stopped;
+    PlayMode m_mode = PlayMode::Sequential;
+    quint64 m_generation = 0;
+    qint64 m_duration = 0;
 };
-
-#endif // PLAYERCONTROLLER_H
